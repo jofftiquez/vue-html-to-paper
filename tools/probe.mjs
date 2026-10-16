@@ -1,0 +1,10 @@
+import { launch, close, newPage, capturePrint, card, browserVersion } from './capture.mjs';
+import { serve } from './serve.mjs';
+const srv = await serve(process.env.REPO, 5701);
+await launch();
+const { page, logs } = await newPage('http://127.0.0.1:5701/index.html');
+const opener = await page.screenshot();
+const r = await capturePrint(page, 'text=PRINT PORTRAIT');
+console.log(JSON.stringify({ ...r.info, bodyHtml: undefined, bodyText: r.info.bodyText.slice(0, 80) }, null, 1), logs, r.paper.length, browserVersion());
+await card(process.env.S + '/probe.png', { title: 'probe', subtitle: 'x', opener, popup: r.popupShot, paper: r.paper, checks: [{ label: 'print called', pass: r.info.calls.print === 1 }] });
+await close(); srv.close();
