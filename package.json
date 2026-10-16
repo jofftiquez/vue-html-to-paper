@@ -24,7 +24,7 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "lint": "eslint --fix --ext .js --ignore-path .gitignore .",
+    "lint": "eslint --fix .",
     "prebuild": "rm -rf dist build",
     "build": "rollup -c",
     "test:smoke": "node scripts/smoke.mjs"
@@ -45,9 +45,11 @@
     "print element"
   ],
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@rollup/plugin-terser": "^1.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.25.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.11.0",
+    "globals": "^17.13.0",
     "rollup": "^4.63.6"
   },
   "peerDependencies": {

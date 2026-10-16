@@ -13,8 +13,7 @@ function addStyles (win, styles) {
 }
 
 function openWindow (url, name, props) {
-  let windowRef = null;
-  windowRef = window.open(url, name, props);
+  const windowRef = window.open(url, name, props);
   if (!windowRef.opener) {
     windowRef.opener = self;
   }
@@ -27,13 +26,11 @@ const VueHtmlToPaper = {
     app.config.globalProperties.$htmlToPaper = (el, localOptions, cb = () => true) => {
       let defaultName = '_blank', 
         defaultSpecs = ['fullscreen=yes','titlebar=yes', 'scrollbars=yes'],
-        defaultReplace = true,
         defaultStyles = [],
         defaultWindowTitle = window.document.title;
       let {
         name = defaultName,
         specs = defaultSpecs,
-        replace = defaultReplace,
         styles = defaultStyles,
         autoClose = true,
         windowTitle = defaultWindowTitle,
@@ -41,16 +38,15 @@ const VueHtmlToPaper = {
 
       // If has localOptions
       // TODO: improve logic
-      if (!!localOptions) {
+      if (localOptions) {
         if (localOptions.name) name = localOptions.name;
         if (localOptions.specs) specs = localOptions.specs;
-        if (localOptions.replace) replace = localOptions.replace;
         if (localOptions.styles) styles = localOptions.styles;
         if (localOptions.autoClose === false) autoClose = localOptions.autoClose;
         if (localOptions.windowTitle) windowTitle = localOptions.windowTitle;
       }
 
-      specs = !!specs.length ? specs.join(',') : '';
+      specs = specs.length ? specs.join(',') : '';
 
       const element = window.document.getElementById(el);
 
