@@ -18,8 +18,9 @@ function openWindow (url, name, props) {
 }
   
 const VueHtmlToPaper = {
+  // `app` is a Vue 3 app (app.use) or the Vue 2 constructor (Vue.use).
   install (app, options = {}) {
-    app.config.globalProperties.$htmlToPaper = (el, localOptions, cb = () => true) => {
+    const htmlToPaper = (el, localOptions, cb = () => true) => {
       let defaultName = '_blank', 
         defaultSpecs = ['fullscreen=yes','titlebar=yes', 'scrollbars=yes'],
         defaultStyles = [],
@@ -79,6 +80,12 @@ const VueHtmlToPaper = {
         
       return true;
     };
+
+    if (app.config && app.config.globalProperties) {
+      app.config.globalProperties.$htmlToPaper = htmlToPaper;
+    } else {
+      app.prototype.$htmlToPaper = htmlToPaper;
+    }
   },
 };
 

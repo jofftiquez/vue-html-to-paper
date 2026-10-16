@@ -23,4 +23,10 @@ export default [
       'no-multi-str': 'off',
     },
   },
+  {
+    // The published bundles are not transpiled. Keep the source parseable by
+    // webpack 4 (Nuxt 2 / Vue CLI 4), which has no optional chaining or `??`.
+    files: ['src/**/*.js'],
+    languageOptions: { ecmaVersion: 2018 },
+  },
 ];
