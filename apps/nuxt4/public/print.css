@@ -1,0 +1,7 @@
+/* Injected into the print window via the `styles` option. */
+body { font-family: Georgia, 'Times New Roman', serif; color: #111; margin: 32px; }
+h1 { color: #b4001e; border-bottom: 3px solid #b4001e; padding-bottom: 6px; }
+table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+th, td { border: 1px solid #999; padding: 6px 10px; text-align: left; }
+th { background: #f1d4d8; }
+.total { font-weight: bold; font-size: 1.2em; text-align: right; margin-top: 12px; }

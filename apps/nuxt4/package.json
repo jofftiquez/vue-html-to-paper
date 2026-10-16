@@ -1,0 +1,20 @@
+{
+  "name": "nuxt4-dogfood",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "node .output/server/index.mjs",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "nuxt": "^4.5.2",
+    "vue": "3.5",
+    "vue-html-to-paper": "file:../pkg/vue-html-to-paper-2.0.3.tgz"
+  },
+  "devDependencies": {
+    "typescript": "6.0",
+    "vue-tsc": "^3.3.11"
+  }
+}
