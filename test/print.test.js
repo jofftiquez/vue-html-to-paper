@@ -101,10 +101,10 @@ describe('print behaviour', () => {
     expect(popup.document.title).toBe('Opener');
   });
 
-  it('returns false instead of throwing when the popup is blocked', () => {
+  it('resolves to false instead of throwing when the popup is blocked', async () => {
     open.mockReturnValue(null);
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    expect(install()('printMe')).toBe(false);
+    await expect(install()('printMe')).resolves.toBe(false);
     expect(error).toHaveBeenCalledWith(expect.stringContaining('blocked'));
   });
 });
