@@ -9,9 +9,14 @@
   "jsdelivr": "build/vue-html-to-paper.min.js",
   "exports": {
     ".": {
-      "types": "./types/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": {
+        "types": "./types/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./dist/index.js"
+      }
     },
     "./dist/*": "./dist/*",
     "./build/*": "./build/*",
@@ -26,10 +31,12 @@
   "scripts": {
     "lint": "eslint --fix .",
     "prebuild": "rm -rf dist build",
-    "build": "rollup -c",
+    "build": "rollup -c && cp types/index.d.ts types/index.d.mts",
     "test:smoke": "node scripts/smoke.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:types": "tsc -p test/types/vue3 && tsc -p test/types/vue2",
+    "test:package": "attw --pack ."
   },
   "repository": {
     "type": "git",
@@ -47,6 +54,7 @@
     "print element"
   ],
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
     "@eslint/js": "^10.0.1",
     "@rollup/plugin-terser": "^1.0.0",
     "@stylistic/eslint-plugin": "^5.10.0",
@@ -54,6 +62,7 @@
     "globals": "^17.13.0",
     "jsdom": "^30.1.1",
     "rollup": "^4.63.6",
+    "typescript": "^7.0.2",
     "vitest": "^5.0.3",
     "vue": "3.5",
     "vue2": "npm:vue@^2.7.16",
