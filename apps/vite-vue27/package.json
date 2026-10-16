@@ -1,0 +1,20 @@
+{
+  "name": "vite-vue27",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "vue": "^2.7.16",
+    "vue-html-to-paper": "file:../pkg/vue-html-to-paper-2.0.3.tgz"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.4",
+    "typescript": "5.9",
+    "vite": "^7.3.6",
+    "vue-tsc": "^3.3.11"
+  }
+}

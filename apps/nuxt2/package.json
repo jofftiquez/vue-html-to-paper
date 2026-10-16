@@ -1,0 +1,13 @@
+{
+  "name": "nuxt2-dogfood",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start"
+  },
+  "dependencies": {
+    "nuxt": "^2.18.1",
+    "vue-html-to-paper": "file:../pkg/vue-html-to-paper-2.0.3.tgz"
+  }
+}
