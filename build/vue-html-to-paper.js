@@ -4,9 +4,33 @@
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.VueHtmlToPaper = factory());
 })(this, (function () { 'use strict';
 
+  const DEFAULT_OPTIONS = {
+    name: '_blank',
+    specs: ['fullscreen=yes', 'titlebar=yes', 'scrollbars=yes'],
+    styles: [],
+    autoClose: true,
+    timeout: 1000,
+    windowTitle: undefined,
+  };
+
+  // Later sources win, but only for keys they actually define.
+  function mergeOptions (...sources) {
+    const merged = {};
+    sources.forEach((source) => {
+      Object.keys(source || {}).forEach((key) => {
+        if (source[key] !== undefined) merged[key] = source[key];
+      });
+    });
+    return merged;
+  }
+
+  function escapeHtml (text) {
+    return String(text).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  }
+
   function addStyles (win, styles) {
-    styles.forEach(style => {
-      let link = win.document.createElement('link');
+    styles.forEach((style) => {
+      const link = win.document.createElement('link');
       link.setAttribute('rel', 'stylesheet');
       link.setAttribute('type', 'text/css');
       link.setAttribute('href', style);
@@ -16,40 +40,26 @@
 
   function openWindow (url, name, props) {
     const windowRef = window.open(url, name, props);
+    if (!windowRef) return null;
     if (!windowRef.opener) {
       windowRef.opener = self;
     }
     windowRef.focus();
     return windowRef;
   }
-    
+
   const VueHtmlToPaper = {
     // `app` is a Vue 3 app (app.use) or the Vue 2 constructor (Vue.use).
     install (app, options = {}) {
       const htmlToPaper = (el, localOptions, cb = () => true) => {
-        let defaultName = '_blank', 
-          defaultSpecs = ['fullscreen=yes','titlebar=yes', 'scrollbars=yes'],
-          defaultStyles = [],
-          defaultWindowTitle = window.document.title;
-        let {
-          name = defaultName,
-          specs = defaultSpecs,
-          styles = defaultStyles,
-          autoClose = true,
-          windowTitle = defaultWindowTitle,
-        } = options;
-
-        // If has localOptions
-        // TODO: improve logic
-        if (localOptions) {
-          if (localOptions.name) name = localOptions.name;
-          if (localOptions.specs) specs = localOptions.specs;
-          if (localOptions.styles) styles = localOptions.styles;
-          if (localOptions.autoClose === false) autoClose = localOptions.autoClose;
-          if (localOptions.windowTitle) windowTitle = localOptions.windowTitle;
-        }
-
-        specs = specs.length ? specs.join(',') : '';
+        const {
+          name,
+          specs,
+          styles,
+          autoClose,
+          timeout,
+          windowTitle,
+        } = mergeOptions(DEFAULT_OPTIONS, options, localOptions);
 
         const element = window.document.getElementById(el);
 
@@ -57,14 +67,18 @@
           alert(`Element to print #${el} not found!`);
           return;
         }
-        
-        const url = '';
-        const win = openWindow(url, name, specs);
 
-        win.document.write(`
+        const win = openWindow('', name, specs.length ? specs.join(',') : '');
+
+        if (!win) {
+          console.error('[vue-html-to-paper] window.open() was blocked; allow pop-ups for this site to print.');
+          return false;
+        }
+
+        win.document.write(`<!DOCTYPE html>
         <html>
           <head>
-            <title>${windowTitle || window.document.title}</title>
+            <title>${escapeHtml(windowTitle || window.document.title)}</title>
           </head>
           <body>
             ${element.innerHTML}
@@ -73,17 +87,20 @@
       `);
 
         addStyles(win, styles);
-        
+
+        // Without this Chrome treats the popup as still loading and never
+        // opens the print dialog (mycurelabs/vue-html-to-paper#126).
+        win.document.close();
+
         setTimeout(() => {
           win.focus();
           win.print();
-          console.warn('autoClose', autoClose);
           if (autoClose) {
-            setTimeout(function () {win.close();}, 1);
+            setTimeout(() => win.close(), 1);
           }
           cb();
-        }, 1000);
-          
+        }, timeout);
+
         return true;
       };
 
