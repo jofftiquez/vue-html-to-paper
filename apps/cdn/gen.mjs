@@ -1,0 +1,70 @@
+// Generates CDN dogfood pages: same UMD bundle (lib/) on Vue 2.6, 2.7 and 3.
+import { writeFileSync } from 'node:fs';
+
+const invoice = `
+  <div id="invoice" ref="invoice" class="invoice">
+    <h1>Invoice #2026-1016</h1>
+    <p>Billed to: <b>Kidlat Pet Clinic</b> · Rendered with <b>{{ label }}</b></p>
+    <table>
+      <thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead>
+      <tbody><tr v-for="row in rows" :key="row[0]"><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td></tr></tbody>
+    </table>
+    <p class="total">Total: ₱ 4,350.00</p>
+  </div>`;
+
+const controls = (composable) => `
+  <div class="controls">
+    <button id="print" @click="print">Print</button>
+    <button id="print-landscape" @click="printLandscape">Print landscape</button>
+    <button id="print-keep-open" @click="printKeepOpen">Print (autoClose: false)</button>
+    <button id="print-title" @click="printTitle">Print with custom title</button>
+    <button id="print-ref" @click="printRef">Print template ref (await)</button>
+    ${composable ? '<button id="print-composable" @click="onComposable">Print via useHtmlToPaper()</button>' : ''}
+  </div>
+  <pre id="log">{{ log.join('\\n') }}</pre>`;
+
+const methods = `{
+    print () { this.$htmlToPaper('invoice', undefined, () => this.log.push('callback: default print done')); },
+    printLandscape () { this.$htmlToPaper('invoice', { styles: ['/print.css', '/landscape.css'] }, () => this.log.push('callback: landscape done')); },
+    printKeepOpen () { this.$htmlToPaper('invoice', { autoClose: false }, () => this.log.push('callback: autoClose false done')); },
+    printTitle () { this.$htmlToPaper('invoice', { windowTitle: 'Invoice-2026-1016' }, () => this.log.push('callback: custom title done')); },
+    async printRef () { const ok = await this.$htmlToPaper(this.$refs.invoice); this.log.push('await: ref print done -> ' + ok); },
+    async onComposable () { const ok = await this.printComposable('invoice'); this.log.push('await: composable print done -> ' + ok); },
+  }`;
+
+const data = (label) => `{ label: ${JSON.stringify(label)} + ' ' + VUE_VERSION, rows: [['Consultation', 1, '₱ 850.00'], ['Vaccine (5-in-1)', 2, '₱ 1,500.00'], ['Grooming', 1, '₱ 500.00']], log: [] }`;
+
+const page = (title, vueSrc, script, composable) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>${title}</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 0; background: #f5f6f8; }
+  header { background: #1f2937; color: #fff; padding: 10px 20px; font-weight: 600; }
+  main { padding: 18px 24px; } .controls button { margin: 0 8px 8px 0; padding: 7px 12px; }
+  .invoice { background: #fff; padding: 16px 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 14px; }
+  #log { background: #111; color: #9fef00; padding: 8px 12px; min-height: 2em; border-radius: 6px; }
+</style>
+<script src="${vueSrc}"></script>
+<script src="/lib/vue-html-to-paper.js"></script>
+</head><body><header>${title}</header><main id="app">${invoice}${controls(composable)}</main>
+<script>
+${script}
+</script></body></html>`;
+
+const setup = `setup () { const print = VueHtmlToPaper.useHtmlToPaper(); return { printComposable: (el) => print(el) }; },`;
+
+const vue2 = (version, composable) => page(`CDN · Vue ${version} + vue-html-to-paper (UMD)`, `https://cdn.jsdelivr.net/npm/vue@${version}/dist/vue.js`, `
+Vue.config.productionTip = false;
+const VUE_VERSION = Vue.version;
+Vue.use(VueHtmlToPaper, { styles: ['/print.css'] });
+window.vm = new Vue({ el: '#app', ${composable ? setup : ''} data: ${data('Vue')}, methods: ${methods} });`, composable);
+
+const vue3 = (version) => page(`CDN · Vue ${version} + vue-html-to-paper (UMD)`, `https://cdn.jsdelivr.net/npm/vue@${version}/dist/vue.global.js`, `
+const VUE_VERSION = Vue.version;
+window.vm = Vue.createApp({ ${setup} data () { return ${data('Vue')}; }, methods: ${methods} })
+  .use(VueHtmlToPaper, { styles: ['/print.css'] })
+  .mount('#app');`, true);
+
+writeFileSync('vue26.html', vue2('2.6.14'));
+writeFileSync('vue27.html', vue2('2.7.16', true));
+writeFileSync('vue3.html', vue3('3.5.43'));
+console.log('generated vue26.html vue27.html vue3.html');

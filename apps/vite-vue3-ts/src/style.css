@@ -1,0 +1,7 @@
+body { font: 15px/1.5 system-ui, sans-serif; margin: 0; background: #f5f6f8; }
+#app { max-width: none; margin: 0; padding: 0; text-align: left; }
+header { background: #1f2937; color: #fff; padding: 10px 20px; font-weight: 600; }
+main { padding: 14px 24px; } #versions { color: #555; font-size: 13px; margin: 0 0 10px; }
+.controls button { margin: 0 8px 8px 0; padding: 7px 12px; }
+.invoice { background: #fff; padding: 16px 20px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 14px; }
+#log { background: #111; color: #9fef00; padding: 8px 12px; min-height: 2em; border-radius: 6px; }
